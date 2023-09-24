@@ -7,7 +7,7 @@ import logging
 
 logging.basicConfig(filename="logs.log", level=logging.DEBUG)
 
-mongo_manager = MongoManager("mongodb://localhost:27017/", "Ballbert_Local", "Users")
+mongo_manager = MongoManager()
 
 
 class Client:

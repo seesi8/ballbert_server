@@ -2,7 +2,7 @@ def reset():
 
     from Backend.db import MongoManager
 
-    mongo_manager = MongoManager("mongodb://localhost:27017/", "Ballbert_Local", "Users")
+    mongo_manager = MongoManager()
 
     mongo_manager.clear_collection()
 

@@ -20,7 +20,7 @@ config = Config()
     
 app = Server()
 
-mongo_manager = MongoManager("mongodb://localhost:27017/", "Ballbert_Local", "Users")
+mongo_manager = MongoManager()
 
 recogniser = sr.Recognizer()
 openai.api_key = config["OPENAI_API_KEY"]
