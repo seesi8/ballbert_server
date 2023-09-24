@@ -13,13 +13,12 @@ openai.api_key = config["OPENAI_API_KEY"]
 class MongoManager:
     def __init__(
         self,
-        mongo_url="mongodb://localhost:27017/",
-        db_name="Ballbert_Local",
-        collection_name="Users",
+        mongo_url=config["MONGO_DB_URL"],
+        db_name=config["DB_NAME"],
     ):
         self.client = MongoClient(mongo_url)
         self.db = self.client[db_name]
-        self.collection = self.db[collection_name]
+        self.collection = self.db["Users"]
         self.approved_skills = self.db["Approved_Skills"]
         self.collection.create_index("uid", unique=True)
     
