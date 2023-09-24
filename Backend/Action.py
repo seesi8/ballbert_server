@@ -1,4 +1,3 @@
-from typing import Self
 
 
 class Parameter:
@@ -21,7 +20,7 @@ class Parameter:
         return self.id, data
 
     @classmethod
-    def from_dict(cls, id, data) -> Self:
+    def from_dict(cls, id, data) :
         required_fields = ["type", "description", "required"]
 
         for field in required_fields:
@@ -71,7 +70,7 @@ class Action:
         return data
 
     @classmethod
-    def from_dict(cls, data) -> Self:
+    def from_dict(cls, data):
         required_fields = ["id", "name", "skill", "parameters", "description"]
 
         for field in required_fields:
