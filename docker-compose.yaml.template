@@ -1,0 +1,14 @@
+services:
+  server:
+    build:
+      context: ./
+    volumes:
+      - A:\ballbert-server\Data:/app/Data
+    environment:
+      - OPENAI_API_KEY = <YOUR-OPENAI_API_KEY>
+      - HUGGINGFACE_API_KEY=<YOUR-HUGGINGFACE_API_KEY>
+      - PORQUPINE_API_KEY=<YOUR-PORQUPINE_API_KEY>
+      - MONGO_DB_URL=<YOUR-MONGO_DB_URL>
+      - DB_NAME=<YOUR-DB_NAME>
+    ports:
+      - "8765:8765"

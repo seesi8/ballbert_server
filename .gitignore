@@ -1,4 +1,5 @@
 Data/*
 
 temp
-logs.log
+./Data/logs.txt
+docker-compose.yaml

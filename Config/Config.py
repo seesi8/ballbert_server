@@ -3,65 +3,42 @@ import dotenv
 
 
 class Config:
-    def __init__(self, dotenv_path="./Data/.env"):
-        self.dotenv_path = dotenv_path
-
-        if not os.path.exists(dotenv_path):
-            open(dotenv_path, "w").close()
+    def __init__(self):
+        self.data = {}
         self.populate_values()
 
     def __getitem__(self, key, default=None):
         self.populate_values()
         return self.data.get(key, default)
 
-    def isReady(self):
-        self.populate_values()
-        required_variables = [
-            "OPENAI_API_KEY",
-            "SR_MIC",
-            "PV_MIC",
-            "TEMPATURE",
-            "LLM",
-            "PORQUPINE_API_KEY",
-            "GOOGLE_APPLICATION_CREDENTIALS",
-            "HUGGINGFACE_API_KEY",
-        ]
-
-        if os.path.exists(self.dotenv_path):
-            for item in required_variables:
-                if item not in self.data:
-                    return False
-            return True
-        return False
-
     def __setitem__(self, key, value):
-        dotenv.set_key(self.dotenv_path, str(key), str(value))
+        os.environ[key] = value
         dotenv.load_dotenv()
         self.populate_values()
         self.data[key] = value
 
     def populate_values(self):
-        if not os.path.exists(self.dotenv_path):
-            open(self.dotenv_path, "w").close()
-        dotenv.load_dotenv(self.dotenv_path)
 
-        data = dict(dotenv.dotenv_values(self.dotenv_path))
-        for key, value in data.items():
+        for key, value in os.environ.items():
             if value == "True":
-                data[key] = True
+                self.data[key] = True
+                continue
             elif value == "False":
-                data[key] = False
+                self.data[key] = False
+                continue
             try:
                 num = float(value)
-                data[key] = num
+                self.data[key] = num
+                continue
             except:
                 pass
             try:
                 num = int(value)
-                data[key] = num
+                self.data[key] = num
+                continue
             except:
                 pass
-        self.data = data
+            self.data[key] = value
 
     def __delitem__(self, key):
         self.populate_values()
