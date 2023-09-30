@@ -163,10 +163,24 @@ class Server:
             uid = websocket.request_headers.get("UID")
 
             if not uid:
-                await websocket.send("Missing UID")
-                return
+                async for message in websocket:
+                    auth_message = message
+                    break
+                json_auth_message = json.loads(auth_message)
+                uid = json_auth_message.get("UID")
+                message_type = json_auth_message.get("type")
+                
+                if not ((message_type == "Authentication") and (uid != None)):
+                    await websocket.send("First message was not auth")
+                    return
+                
+                if not uid in mongo_manager.get_valid_uids():
+                    await websocket.send("Invalid UID")
+                    return    
+            
+                
             if not uid in mongo_manager.get_valid_uids():
-                await websocket.send("Invalid Api Key")
+                await websocket.send("InvalidUID")
                 return
             else:
                 if uid not in self.clients:
@@ -179,7 +193,6 @@ class Server:
         except Exception as e:
             print(f"Exception occurred: {str(e)}")
 
-            raise e
 
 
     def serve(self):

@@ -27,6 +27,10 @@ openai.api_key = config["OPENAI_API_KEY"]
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "./Data/creds.json"
 punctuations = "!?."
 
+@app.route("Authentication")
+async def authentication(client: Client_Assistant, UID: str):
+    return
+
 @app.route()
 async def foward(client: Client_Assistant, foward_type: str, kwargs: dict):
     await client.send_message(foward_type, kwargs)
