@@ -14,7 +14,7 @@ mongo_manager = MongoManager()
 if platform.system() == "Linux":
     # Load the Let's Encrypt certificate and private key
     ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-    ssl_context.load_cert_chain("/etc/letsencrypt/live/websocket.ballbert.com/fullchain.pem", "/etc/letsencrypt/live/websocket.ballbert.com/privkey.pem")
+    ssl_context.load_cert_chain("./Data/fullchain.pem", "./Data/privkey.pem")
 
 
 class Client:
