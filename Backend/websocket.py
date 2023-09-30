@@ -1,13 +1,20 @@
 import json
 import asyncio
+import platform
 import websockets
 from Backend.db import MongoManager
 import inspect
 import logging
+import ssl
 
 logging.basicConfig(filename="./Data/logs.log", level=logging.DEBUG)
 
 mongo_manager = MongoManager()
+
+if platform.system() == "Linux":
+    # Load the Let's Encrypt certificate and private key
+    ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    ssl_context.load_cert_chain("/etc/letsencrypt/live/websocket.ballbert.com/fullchain.pem", "/etc/letsencrypt/live/websocket.ballbert.com/privkey.pem")
 
 
 class Client:
@@ -176,7 +183,11 @@ class Server:
 
 
     def serve(self):
-        start_server = websockets.serve(self.websocket_server, "0.0.0.0", 8765)
-
+        if platform.system() == "Linux":
+            
+            start_server = websockets.serve(self.websocket_server, "0.0.0.0", 8765, ssl=ssl_context)
+        else:
+            start_server = websockets.serve(self.websocket_server, "0.0.0.0", 8765)
+            
         asyncio.get_event_loop().run_until_complete(start_server)
         asyncio.get_event_loop().run_forever()
