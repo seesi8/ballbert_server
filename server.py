@@ -130,7 +130,7 @@ async def add_skill(
 async def remove_a_skill(
     client: Client_Assistant, name: str
 ):
-    client.send_message("remove_skill", name=name)
+    await client.send_message("remove_skill", name=name)
     mongo_manager.remove_skill_from_user(name, client.uid)
     
     
