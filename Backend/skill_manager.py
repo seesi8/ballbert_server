@@ -48,17 +48,17 @@ def check_valid_python_code(code):
         return False
 
 def remove_skill(skill_uuid: str):
-    skill_path = os.path.join("./temp", skill_uuid)
+    skill_path = os.path.join("./Data/temp", skill_uuid)
     if os.path.exists(skill_path):
         rmtree_hard(skill_path)
     
     
 def ready_temp_dir():
-    if not os.path.exists("./temp"):
-        os.mkdir("./temp")
+    if not os.path.exists("./Data/temp"):
+        os.mkdir("./Data/temp")
 
 def clone_skill(skill_url: str, skill_uuid: SyntaxError) -> Repo:
-    """clones the skill from the url into a subfolder in the temp directory named the skill_uuid ex. ./temp/skill_uuid
+    """clones the skill from the url into a subfolder in the temp directory named the skill_uuid ex. ./Data/temp/skill_uuid
 
     Args:
         skill_url (str): the url of the skill
@@ -67,7 +67,7 @@ def clone_skill(skill_url: str, skill_uuid: SyntaxError) -> Repo:
     Returns:
         (Repo) the repo object
     """
-    repo = Repo.clone_from(skill_url, os.path.join("./temp", skill_uuid))
+    repo = Repo.clone_from(skill_url, os.path.join("./Data/temp", skill_uuid))
     
     return repo
 
@@ -75,7 +75,7 @@ def is_folder_valid(name: str, uuid: str) -> bool:
         # Read the config file
         
         try:
-            folder_path = os.path.join("./temp", uuid)
+            folder_path = os.path.join("./Data/temp", uuid)
 
             config_file_path = os.path.join(folder_path, "config.yaml")
             with open(config_file_path, "r") as config_file:
@@ -118,7 +118,7 @@ def is_folder_valid(name: str, uuid: str) -> bool:
         return True
 
 def get_skill_requirements(skill_uuid):
-    config_file_path = os.path.join("./temp", skill_uuid, "config.yaml")
+    config_file_path = os.path.join("./Data/temp", skill_uuid, "config.yaml")
     
     with open(config_file_path, "r") as config_file:
         config = yaml.safe_load(config_file)
@@ -129,7 +129,7 @@ def get_skill_requirements(skill_uuid):
         
 
 def get_name(skill_uuid):
-    config_file_path = os.path.join("./temp", skill_uuid, "config.yaml")
+    config_file_path = os.path.join("./Data/temp", skill_uuid, "config.yaml")
     
     with open(config_file_path, "r") as config_file:
         config = yaml.safe_load(config_file)

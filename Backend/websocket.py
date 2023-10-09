@@ -24,6 +24,7 @@ class Client:
         self.uid = uid
 
     async def send_message(self, type, data=None, **kwargs):
+        
         json_data = {"type": type}
         if data:
             json_data = {**json_data, **data}
@@ -50,6 +51,7 @@ class Client:
             return message
     
     async def handle_message(self, message):
+        print(message)
         try:
             decoded_json_message = json.loads(message)
         except Exception as e:
@@ -113,9 +115,11 @@ class Client:
             await self.send_message("error", error=str(e))
 
     async def handle_connection(self, websocket):
+        print(websocket)
         self.websockets.append(websocket)
         try:
             async for message in websocket:
+                print(message)
                 await self.handle_message(message)
         except Exception as e:
             print(e)
@@ -159,9 +163,10 @@ class Server:
         return registrar
 
     async def websocket_server(self, websocket, path: str):
+        print("hi")
         try:
             uid = websocket.request_headers.get("UID")
-
+            print(uid)
             if not uid:
                 async for message in websocket:
                     auth_message = message
@@ -169,25 +174,32 @@ class Server:
                 json_auth_message = json.loads(auth_message)
                 uid = json_auth_message.get("UID")
                 message_type = json_auth_message.get("type")
-                
+                print("hi")
                 if not ((message_type == "Authentication") and (uid != None)):
                     await websocket.send("First message was not auth")
+                    print("First message was not auth")
+
                     return
                 
                 if not uid in mongo_manager.get_valid_uids():
                     await websocket.send("Invalid UID")
+                    print("InvalidUID")
+
                     return    
             
                 
             if not uid in mongo_manager.get_valid_uids():
-                await websocket.send("InvalidUID")
+                await websocket.send("Invalid UID")
+                print("Invalid UID")
                 return
             else:
                 if uid not in self.clients:
                     client = Client_Assistant(self.routes, uid)
                     self.clients[uid] = client
+                    
                 else:
                     client = self.clients[uid]
+                print("handling")
                 await client.handle_connection(websocket)
 
         except Exception as e:
@@ -196,6 +208,7 @@ class Server:
 
 
     def serve(self):
+        print("Sarted")
         if platform.system() == "Linux":
             
             start_server = websockets.serve(self.websocket_server, "0.0.0.0", 8765, ssl=ssl_context)
