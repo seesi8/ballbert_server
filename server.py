@@ -126,7 +126,7 @@ async def add_skill(
     mongo_manager.add_actions_to_user(client.uid, actions)
 
 
-app.route("remove_skill")
+@app.route("remove_skill")
 async def remove_a_skill(
     client: Client_Assistant, name: str
 ):
