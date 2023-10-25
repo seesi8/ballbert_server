@@ -5,6 +5,8 @@ import dotenv
 class Config:
     def __init__(self):
         self.data = {}
+        if os.path.exists("./Data/.env"):
+            dotenv.load_dotenv("./Data/.env")
         self.populate_values()
 
     def __getitem__(self, key, default=None):
@@ -13,7 +15,6 @@ class Config:
 
     def __setitem__(self, key, value):
         os.environ[key] = value
-        dotenv.load_dotenv()
         self.populate_values()
         self.data[key] = value
 

@@ -5,10 +5,6 @@ repos_path = f"{os.path.abspath(os.getcwd())}/Skills"
 
 NoneType = type(None)
 
-
-def save_image_from_url(url, filename):
-    ...
-
 def rmtree_hard(path, _prev=None):
     ...
 

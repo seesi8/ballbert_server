@@ -150,6 +150,7 @@ async def handle_audio(client: Client_Assistant, audio_data, sample_rate, sample
     
     try:
         transcript = recogniser.recognize_google_cloud(audio, "./Data/creds.json")
+        logging.log(transcript)
     except:
         transcript = ""
     
@@ -167,6 +168,7 @@ async def handle_generator_to_audio(client, gen):
     await client.send_message("indecator_bar_color", color="green")
 
     async for chunk in gen:
+        logging.log(f"chunk {chunk}")
         sentament = get_sentament(chunk)
 
         chunk = re.sub("(?<=\d)\.(?=\d)", " point ", chunk)
