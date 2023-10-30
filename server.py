@@ -150,9 +150,9 @@ async def handle_audio(client: Client_Assistant, audio_data, sample_rate, sample
     
     try:
         transcript = recogniser.recognize_google_cloud(audio, "./Data/creds.json")
-        logging.info(transcript)
+        logging.info(f"RECOGNISED {transcript}")
     except:
-        transcript = ""
+        transcript = "" 
     
     await handle_text(client, transcript)
 

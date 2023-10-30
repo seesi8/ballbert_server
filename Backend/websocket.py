@@ -1,5 +1,6 @@
 import json
 import asyncio
+import os
 import platform
 import websockets
 from Backend.db import MongoManager
@@ -11,7 +12,7 @@ logging.basicConfig(filename="./Data/logs.log", level=logging.DEBUG)
 
 mongo_manager = MongoManager()
 
-if platform.system() == "Linux":
+if platform.system() == "Linux" and os.path.exists("./Data/fullchain.pem"):
     # Load the Let's Encrypt certificate and private key
     ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     ssl_context.load_cert_chain("./Data/fullchain.pem", "./Data/privkey.pem")
@@ -209,7 +210,7 @@ class Server:
 
     def serve(self):
         print("Sarted")
-        if platform.system() == "Linux":
+        if platform.system() == "Linux" and os.path.exists("./Data/fullchain.pem"):
             
             start_server = websockets.serve(self.websocket_server, "0.0.0.0", 8765, ssl=ssl_context)
         else:
