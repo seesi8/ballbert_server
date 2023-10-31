@@ -133,8 +133,6 @@ async def remove_a_skill(
     await client.send_message("remove_skill", name=name)
     mongo_manager.remove_skill_from_user(name, client.uid)
     
-    
-
 
 
 @app.route()
@@ -151,8 +149,9 @@ async def handle_audio(client: Client_Assistant, audio_data, sample_rate, sample
     try:
         transcript = recogniser.recognize_google_cloud(audio, "./Data/creds.json")
         logging.info(f"RECOGNISED {transcript}")
-    except:
-        transcript = "" 
+    except Exception as e:
+        print(e)
+        transcript = "FROM THE SERVER: There was an error transcribing" 
     
     await handle_text(client, transcript)
 
