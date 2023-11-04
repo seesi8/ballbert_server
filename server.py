@@ -61,6 +61,17 @@ async def get_openai_api_key(client: Client_Assistant):
         key=config["OPENAI_API_KEY"]
     )
 
+@app.route()
+async def ready(client: Client_Assistant):
+    for skill in mongo_manager.get_user_installed_skills(client.uid):
+        name = skill["name"]
+        version = skill["version"]
+        url = skill["url"]
+        print(name)
+        
+        await client.send_message("add_skill", version= version, url=url, name=name)
+            
+        result = await client.wait_for_message(f"skill_added/{name}")
 
 @app.route()
 async def add_skill(
@@ -117,7 +128,7 @@ async def add_skill(
     #actioning
     actions = []
     
-    mongo_manager.add_skill_to_user(name, version, client.uid)
+    mongo_manager.add_skill_to_user(name, version, client.uid, url)
 
     for action_id, action in new_action_dict.items():
         action_object = Action.from_dict(action)

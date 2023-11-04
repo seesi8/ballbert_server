@@ -80,7 +80,6 @@ class MongoManager:
 
         combined_vector = combined_vector.tolist()
 
-        print(action.to_dict())
         if user_doc:
             if "actions" in user_doc and any(
                 s["id"] == action.id for s in user_doc["actions"]
@@ -128,7 +127,7 @@ class MongoManager:
                 },
             )
         return None
-    def add_skill_to_user(self, name, version, user_id):
+    def add_skill_to_user(self, name, version, user_id, url):
         user_doc = self.collection.find_one({"uid": user_id})
 
         if user_doc:
@@ -139,14 +138,14 @@ class MongoManager:
                     {"uid": user_id, "installed_skills.name": name},
                     {
                         "$set": {
-                            "installed_skills.$": {"name": name, "version": version}
+                            "installed_skills.$": {"name": name, "version": version, "url": url}
                         }
                     },
                 )
             else:
                 self.collection.update_one(
                     {"uid": user_id},
-                    {"$push": {"installed_skills": {"name": name, "version": version}}},
+                    {"$push": {"installed_skills": {"name": name, "version": version, "url": url}}},
                 )
         return None
 

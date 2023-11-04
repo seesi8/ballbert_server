@@ -7,7 +7,6 @@ from Backend.db import MongoManager
 import inspect
 import logging
 import ssl
-
 logging.basicConfig(filename="./Data/logs.log", level=logging.DEBUG)
 
 mongo_manager = MongoManager()
@@ -17,15 +16,16 @@ if platform.system() == "Linux" and os.path.exists("./Data/fullchain.pem"):
     ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     ssl_context.load_cert_chain("./Data/fullchain.pem", "./Data/privkey.pem")
 
+mongo_manager = MongoManager()
 
 class Client:
     def __init__(self, routes, uid) -> None:
         self.websockets = []
-        self.routes = routes
-        self.uid = uid
+        self.routes: str = routes
+        self.uid: str = uid
+        self.connections = []
 
-    async def send_message(self, type, data=None, **kwargs):
-        
+    async def send_message(self, type, data=None,filter=None, **kwargs):
         json_data = {"type": type}
         if data:
             json_data = {**json_data, **data}
@@ -33,10 +33,18 @@ class Client:
             json_data = {**json_data, **kwargs}
 
         string_formated_message = json.dumps(json_data)
-        for socket in self.websockets:
-            logging.info(f"> {({key: str(value)[0:100] for key, value in json_data.items()})}")
+        
+        if filter:
+            for connection in self.connections:
+                if filter(connection):
+                    logging.info(f"> {({key: str(value)[0:100] for key, value in json_data.items()})}")
 
-            await socket.send(string_formated_message)
+                    await connection.send(string_formated_message)
+        else: 
+            for socket in self.websockets:
+                logging.info(f"> {({key: str(value)[0:100] for key, value in json_data.items()})}")
+
+                await socket.send(string_formated_message)
     
     async def wait_for_message(self, type):
         message_queue = asyncio.Queue()
@@ -52,10 +60,10 @@ class Client:
             return message
     
     async def handle_message(self, message):
-        print(message)
         try:
             decoded_json_message = json.loads(message)
         except Exception as e:
+            print(e)
             raise e
 
             await self.send_message("error")
@@ -68,7 +76,7 @@ class Client:
         del decoded_json_message["type"]
 
         if not (action in self.routes and callable(self.routes.get(action))):
-            await self.send_message("error", error="Not Callbable")
+            await self.send_message("error", error="Not Callbable", action=action)
             return
 
         route = self.routes.get(action)
@@ -113,26 +121,32 @@ class Client:
             else:
                 raise Exception("Route must be async")
         except Exception as e:
+            print(e)
             await self.send_message("error", error=str(e))
 
-    async def handle_connection(self, websocket):
-        print(websocket)
+    async def handle_connection(self, websocket, user_agent, headers):
         self.websockets.append(websocket)
+        self.connections.append({"websocket": websocket, "user_agent": user_agent, "headers": headers})
         try:
             async for message in websocket:
-                print(message)
                 await self.handle_message(message)
         except Exception as e:
             print(e)
         self.websockets.remove(websocket)
+        print("finished")
         return
-
 
 class Client_Assistant(Client):
     def __init__(self, routes, uid) -> None:
         super().__init__(routes, uid)
         self.messages = []
+        
 
+    async def handle_connection(self, websocket, user_agent, headers):
+        await super().handle_connection(websocket, user_agent, headers)
+            
+            
+            
 
 class Server:
     def __init__(self) -> None:
@@ -166,16 +180,20 @@ class Server:
     async def websocket_server(self, websocket, path: str):
         print("hi")
         try:
-            uid = websocket.request_headers.get("UID")
-            print(uid)
+            uid = websocket.request_headers.get("UID" )
+            user_agent = websocket.request_headers.get("User-Agent", "User")
+            headers:dict = websocket.request_headers
             if not uid:
                 async for message in websocket:
                     auth_message = message
                     break
                 json_auth_message = json.loads(auth_message)
                 uid = json_auth_message.get("UID")
+                user_agent = json_auth_message.get("User-Agent", "User")
                 message_type = json_auth_message.get("type")
-                print("hi")
+                
+                headers = {**headers, **{key: value for key, value in json_auth_message.items() if value != "type"}}
+                
                 if not ((message_type == "Authentication") and (uid != None)):
                     await websocket.send("First message was not auth")
                     print("First message was not auth")
@@ -200,16 +218,14 @@ class Server:
                     
                 else:
                     client = self.clients[uid]
-                print("handling")
-                await client.handle_connection(websocket)
-
+                await client.handle_connection(websocket, user_agent, headers)
         except Exception as e:
             print(f"Exception occurred: {str(e)}")
 
 
 
     def serve(self):
-        print("Sarted")
+        print("startyed")
         if platform.system() == "Linux" and os.path.exists("./Data/fullchain.pem"):
             
             start_server = websockets.serve(self.websocket_server, "0.0.0.0", 8765, ssl=ssl_context)

@@ -6,7 +6,6 @@ config = Config()
 
 if __name__ == "__main__":
     if not os.path.exists("./Data/logs.log"):
-        print("logs")
         open("./Data/logs.log", "W")
         
     if os.path.exists("./Data/.env"):
