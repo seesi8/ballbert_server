@@ -182,6 +182,11 @@ class Server:
         try:
             uid = websocket.request_headers.get("UID" )
             user_agent = websocket.request_headers.get("User-Agent", "User")
+            
+            if (user_agent == "Device-Setup") and uid:
+                mongo_manager.add_user(uid)
+                return
+            
             headers:dict = websocket.request_headers
             if not uid:
                 async for message in websocket:

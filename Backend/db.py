@@ -23,8 +23,7 @@ class MongoManager:
         self.collection.create_index("uid", unique=True)
     
     def get_approved_skills(self, uid):
-        return self.approved_skills.find({"approved": True})
-        
+        return self.approved_skills.find({"approved": True})     
             
     def insert_document(self, document):
         return self.collection.insert_one(document)
@@ -127,6 +126,7 @@ class MongoManager:
                 },
             )
         return None
+    
     def add_skill_to_user(self, name, version, user_id, url):
         user_doc = self.collection.find_one({"uid": user_id})
 
@@ -189,3 +189,19 @@ class MongoManager:
 
     def clear_collection(self):
         self.collection.delete_many({})
+    
+    def add_user(self, uid):
+        """
+        Add a new user to the database.
+
+        Args:
+            uid (str): A uid to add
+
+        Returns:
+            None
+        """
+        # Check if the user already exists in the database by their unique ID
+        existing_user = self.collection.find_one({"uid": uid})
+
+        if existing_user is None:
+            self.insert_document({"uid": uid})
