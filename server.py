@@ -228,6 +228,9 @@ async def get_installed_actions(client: Client_Assistant):
         "get_installed_actions", installed_skills=installed_skills
     )
 
+@app.route()
+async def get_num_connected_devices(client: Client_Assistant):
+    await client.send_message("get_num_connected_devices", num=len(client.websockets))
 
 def proccess_text(text: str):
     client = texttospeech.TextToSpeechClient()

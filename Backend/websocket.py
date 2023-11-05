@@ -133,6 +133,7 @@ class Client:
         except Exception as e:
             print(e)
         self.websockets.remove(websocket)
+        self.connections.remove({"websocket": websocket, "user_agent": user_agent, "headers": headers})
         print("finished")
         return
 
