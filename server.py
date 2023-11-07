@@ -116,11 +116,12 @@ async def add_skill(
     #clienting
     await client.send_message("add_skill", version= version, url=url, name=name)
     
+    print("waiting for", name)
     result = await client.wait_for_message(f"skill_added/{name}")
     
     succeeded : bool = result.get("succeeded")
     if not succeeded:
-        client.send_message("remove_skill", name=name)
+        await client.send_message("remove_skill", name=name)
         raise Exception("Skill Could Not Be Installed")
     
     new_action_dict = result["new_action_dict"]
