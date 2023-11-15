@@ -87,7 +87,7 @@ async def check_skill_and_return_name(client, url, version):
 
     # checking
     if name in [skill["name"] for skill in mongo_manager.get_user_installed_skills(client.uid)]:
-        return
+        return name
 
     if not check_if_skill_is_alright(name, version, skill_uuid):
         remove_skill(skill_uuid)
