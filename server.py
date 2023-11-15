@@ -109,6 +109,7 @@ async def check_skill_and_return_name(client, url, version):
             raise e
 
     remove_skill(skill_uuid)
+    return name
 
 
 @app.route()
@@ -126,6 +127,7 @@ async def skill_added(client: Client_Assistant, name: str, succeded: str, versio
         actions.append(action_object)
 
     mongo_manager.add_actions_to_user(client.uid, actions)
+    
 
 @app.route()
 async def add_skill(
