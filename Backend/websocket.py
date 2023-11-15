@@ -45,19 +45,7 @@ class Client:
                 logging.info(f"> {({key: str(value)[0:100] for key, value in json_data.items()})}")
 
                 await socket.send(string_formated_message)
-    
-    async def wait_for_message(self, type):
-        message_queue = asyncio.Queue()
-        
-        async def put_result_in_queue(client, **kwargs):
 
-            await message_queue.put(kwargs)
-        
-        self.routes[type] = put_result_in_queue
-        while True:
-            message = await message_queue.get()
-            del self.routes[type]
-            return message
     
     async def handle_message(self, message):
         try:

@@ -23,7 +23,7 @@ def rmtree_hard(path, _prev=None):
         else:
             raise e
         
-def check_if_skill_is_alright(skill_name :str, skill_version: float | None, skill_uuid: str) -> bool:
+def check_if_skill_is_alright(skill_name :str, skill_version: str | None, skill_uuid: str) -> bool:
     """checks if a skill is ok
 
     Args:
