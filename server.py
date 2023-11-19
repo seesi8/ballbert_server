@@ -1,14 +1,13 @@
 import base64
 import os
 import re
-from typing import AsyncGenerator
 import uuid
 import zlib
 from Backend.websocket import Server, Client_Assistant
 import speech_recognition as sr
 import openai
 from MessageHandler import MessageHandler
-from Backend.Action import Action, Parameter
+from Backend.Action import Action
 from google.cloud import texttospeech
 from Backend.db import MongoManager
 from Config import Config
@@ -149,8 +148,11 @@ async def remove_a_skill(
 
 @app.route()
 async def handle_audio(client: Client_Assistant, audio_data, sample_rate, sample_width):
+    await client.send_message("indecator_bar_color", color="green")
+
     decoded_compressed_data = base64.b64decode(audio_data)
     decompressed_frame_data = zlib.decompress(decoded_compressed_data)
+    await client.send_message("done_with_decrompression")
 
     audio = sr.AudioData(
         frame_data=decompressed_frame_data,
@@ -166,20 +168,22 @@ async def handle_audio(client: Client_Assistant, audio_data, sample_rate, sample
         print(e)
         transcript = "FROM THE SERVER: There was an error transcribing"
 
+    await client.send_message("transcription", transcript=transcript)
     await handle_text(client, transcript)
 
 
 @app.route()
 async def handle_text(client: Client_Assistant, transcript: str):
+
     logging.info(f"TRANSCRIPT {transcript}")
     await handle_generator_to_audio(client, handle_transcript(client, transcript))
 
 
 async def handle_generator_to_audio(client, gen):
-    await client.send_message("indecator_bar_color", color="green")
 
     async for chunk in gen:
         logging.info(f"chunk {chunk}")
+                
         sentament = get_sentament(chunk)
 
         chunk = re.sub("(?<=\d)\.(?=\d)", " point ", chunk)
@@ -191,6 +195,8 @@ async def handle_generator_to_audio(client, gen):
         base64_compressed_audio_data = base64.b64encode(compressed_audio_data).decode(
             "utf-8"
         )
+        
+        
         await client.send_message("sentament", sentament=sentament)
         await client.send_message("audio", audio=base64_compressed_audio_data)
     await client.send_message("audio", audio="stop!")
@@ -224,6 +230,10 @@ async def get_installed_skills(client: Client_Assistant):
     installed_skills = mongo_manager.get_user_installed_skills(client.uid)
     await client.send_message("get_installed_skills", installed_skills=installed_skills)
 
+@app.route()
+async def update_skill(client: Client_Assistant, name: str, url : str):
+    await remove_a_skill(client, name)
+    await add_skill(client, "", url)
 
 @app.route()
 async def get_installed_actions(client: Client_Assistant):
@@ -236,6 +246,7 @@ async def get_installed_actions(client: Client_Assistant):
 @app.route()
 async def get_num_connected_devices(client: Client_Assistant):
     await client.send_message("get_num_connected_devices", num=len(client.websockets))
+    
 
 
 def proccess_text(text: str):
@@ -281,5 +292,5 @@ async def convert_generator_to_setance_generator(generator: str):
         else:
             buffer += chunk
 
-
-app.serve()
+if __name__ == "__main__":
+    app.serve()

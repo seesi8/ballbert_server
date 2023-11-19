@@ -229,9 +229,13 @@ class MessageHandler:
 
     async def handle_message(self):
         try:
+            await self.client.send_message("started_handle")
             self.add_to_messages(self.gpt_response)
+            await self.client.send_message("added_to_messages")
             functions = self.get_functions(self.gpt_response)
+            await self.client.send_message("got_functions")
             res = self.ask_gpt(functions)
+            await self.client.send_message("got_gpt_gen")
 
             current_chunk = ""
 
