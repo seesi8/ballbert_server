@@ -133,7 +133,7 @@ class MessageHandler:
             "stream": True,
         }
 
-        if functions:
+        if len(functions) > 0:
             base_args["functions"] = functions
 
         return openai.ChatCompletion.create(**base_args)
