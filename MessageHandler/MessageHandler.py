@@ -124,7 +124,7 @@ class MessageHandler:
         relevant_actions = mongo_manager.get_relavent_actions(
             message, self.user_id, limit=20
         )
-        functions = get_functions_list(relevant_actions)
+        functions =  get_functions_list(relevant_actions),
 
         return functions
 
@@ -137,13 +137,17 @@ class MessageHandler:
         )
 
     def ask_gpt(self, functions):
-        return openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[generate_system_message(), *self.client.messages],
-            temperature=0.2,
-            functions=functions,
-            stream=True,
-        )
+        base_args = {
+            "model": "gpt-3.5-turbo",
+            "messages": [generate_system_message(), *self.client.messages],
+            "temperature": 0.2,
+            "stream": True,
+        }
+
+        if functions:
+            base_args["functions"] = functions
+
+        return openai.ChatCompletion.create(**base_args)
 
     async def handle_chunk(self, chunk):
         delta = chunk["choices"][0]["delta"]
@@ -168,7 +172,9 @@ class MessageHandler:
                         self.arguments = {}
 
                     try:
-                        logging.info(f"FUNCTION CALL ARGUMENTS = {self.arguments} FUNCTION NAME = {self.function_name} USER MESSAGE = {self.gpt_response}")
+                        logging.info(
+                            f"FUNCTION CALL ARGUMENTS = {self.arguments} FUNCTION NAME = {self.function_name} USER MESSAGE = {self.gpt_response}"
+                        )
 
                         await self.client.send_message(
                             "call_function",
