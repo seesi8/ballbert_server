@@ -46,6 +46,7 @@ def get_functions_list(actions: list[Action]):
 
         functions.append(new_dict)
 
+    
     return functions
 
 
@@ -113,7 +114,7 @@ class MessageHandler:
         relevant_actions = mongo_manager.get_relavent_actions(
             message, self.user_id, limit=20
         )
-        functions =  get_functions_list(relevant_actions),
+        functions =  get_functions_list(relevant_actions)
 
         return functions
 
@@ -136,6 +137,7 @@ class MessageHandler:
         if len(functions) > 0:
             base_args["functions"] = functions
 
+        
         return openai.ChatCompletion.create(**base_args)
 
     async def handle_chunk(self, chunk):
