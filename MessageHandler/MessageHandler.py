@@ -46,17 +46,6 @@ def get_functions_list(actions: list[Action]):
 
         functions.append(new_dict)
 
-    system_functions = [
-        {
-            "name": "placeholder",
-            "description": "DO NOT USE",
-            "parameters": {"type": "object", "properties": {}},
-        }
-    ]
-
-    for system_function in system_functions:
-        functions.append(system_function)
-
     return functions
 
 
