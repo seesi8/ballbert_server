@@ -178,6 +178,23 @@ async def handle_text(client: Client_Assistant, transcript: str):
     logging.info(f"TRANSCRIPT {transcript}")
     await handle_generator_to_audio(client, handle_transcript(client, transcript))
 
+@app.route()
+async def handle_text_to_text(client: Client_Assistant, transcript: str):
+
+    logging.info(f"TRANSCRIPT {transcript}")
+    await handle_generator_to_text(client, handle_transcript(client, transcript))
+
+
+async def handle_generator_to_text(client, gen):
+    async for chunk in gen:
+        logging.info(f"chunk {chunk}")
+        
+        await client.send_message("chunk", chunk=chunk)
+                        
+        sentament = get_sentament(chunk)
+
+        await client.send_message("sentament", sentament=sentament)
+
 
 async def handle_generator_to_audio(client, gen):
 
