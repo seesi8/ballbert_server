@@ -195,16 +195,14 @@ class Server:
                     return
                 
                 if not uid in mongo_manager.get_valid_uids():
-                    await websocket.send("Invalid UID")
-                    print("InvalidUID")
-
-                    return    
+                    
+                    mongo_manager.add_user(uid)
+    
             
                 
             if not uid in mongo_manager.get_valid_uids():
-                await websocket.send("Invalid UID")
-                print("Invalid UID")
-                return
+                mongo_manager.add_user(uid)
+
             else:
                 if uid not in self.clients:
                     client = Client_Assistant(self.routes, uid)
