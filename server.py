@@ -200,7 +200,8 @@ async def handle_generator_to_audio(client, gen):
 
     async for chunk in gen:
         logging.info(f"chunk {chunk}")
-                
+        await client.send_message("chunk", chunk=chunk)
+
         sentament = get_sentament(chunk)
 
         chunk = re.sub("(?<=\d)\.(?=\d)", " point ", chunk)
@@ -213,7 +214,7 @@ async def handle_generator_to_audio(client, gen):
             "utf-8"
         )
         
-        
+
         await client.send_message("sentament", sentament=sentament)
         await client.send_message("audio", audio=base64_compressed_audio_data)
     await client.send_message("audio", audio="stop!")
