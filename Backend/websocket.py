@@ -6,8 +6,16 @@ import websockets
 from Backend.db import MongoManager
 import inspect
 import logging
+import logging.handlers
 import ssl
 logging.basicConfig(filename="./Data/logs.log", level=logging.DEBUG)
+
+logfilename = "./Data/logs.log"
+logging.basicConfig(
+        handlers=[logging.handlers.RotatingFileHandler(logfilename, maxBytes=10*1024*1024, backupCount=10)],
+        level=logging.DEBUG,
+        format="[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s",
+        datefmt='%Y-%m-%dT%H:%M:%S')
 
 mongo_manager = MongoManager()
 
