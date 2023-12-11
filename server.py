@@ -5,7 +5,6 @@ import uuid
 import zlib
 from Backend.websocket import Server, Client_Assistant
 import speech_recognition as sr
-import openai
 from MessageHandler import MessageHandler
 from Backend.Action import Action
 from google.cloud import texttospeech
@@ -22,7 +21,6 @@ app = Server()
 mongo_manager = MongoManager()
 
 recogniser = sr.Recognizer()
-openai.api_key = config["OPENAI_API_KEY"]
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "./Data/creds.json"
 punctuations = "!?."
 

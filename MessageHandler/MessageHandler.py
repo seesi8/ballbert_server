@@ -35,18 +35,20 @@ def get_functions_list(actions: list[Action]):
                 properties[parameter.id]["type"] = parameter.type
 
         new_dict = {
-            "name": action.id,
-            "description": description,
-            "parameters": {
-                "type": "object",
-                "properties": properties,
-                "required": required,
-            },
+            "type": "function",
+            "function": {
+                "name": action.id,
+                "description": description,
+                "parameters": {
+                    "type": "object",
+                    "properties": properties,
+                    "required": required,
+                },
+            }
         }
-
+        
         functions.append(new_dict)
 
-    
     return functions
 
 
@@ -114,7 +116,7 @@ class MessageHandler:
         relevant_actions = mongo_manager.get_relavent_actions(
             message, self.user_id, limit=20
         )
-        functions =  get_functions_list(relevant_actions)
+        functions = get_functions_list(relevant_actions)
 
         return functions
 
@@ -130,15 +132,19 @@ class MessageHandler:
         base_args = {
             "model": "gpt-3.5-turbo",
             "messages": [generate_system_message(), *self.client.messages],
-            "temperature": 0.2,
             "stream": True,
         }
 
-        if len(functions) > 0:
-            base_args["functions"] = functions
+        # if len(functions) > 0:
+        #     base_args["functions"] = functions
 
+        if len(functions) > 0:
+            base_args["tools"] = functions
+            base_args["tool_choice"] = "auto"
+
+        openai.api_key = config["OPENAI_API_KEY"]
         
-        return openai.ChatCompletion.create(**base_args)
+        return openai.chat.completions.create(**base_args)
 
     async def handle_chunk(self, chunk):
         delta = chunk["choices"][0]["delta"]

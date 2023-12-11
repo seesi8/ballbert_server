@@ -44,7 +44,7 @@ class MongoManager:
 
     def generate_embedding(self, text):
         try:
-            response = openai.Embedding.create(model="text-embedding-ada-002", input=text)
+            response = openai.embeddings.create(model="text-embedding-ada-002", input=text)
         except:
             openai.api_key = config["OPENAI_API_KEY"]
             return self.generate_embedding(text)
