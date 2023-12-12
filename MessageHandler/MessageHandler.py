@@ -151,6 +151,7 @@ class MessageHandler:
         delta = chunk.choices[0].delta
         # check for end
         if delta == {}:
+            print("end")
             if self.function_name:
                 print("function_call")
                 print(self.function_name)
