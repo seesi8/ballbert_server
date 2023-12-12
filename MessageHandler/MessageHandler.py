@@ -128,7 +128,7 @@ class MessageHandler:
             {"role": "function", "name": function_name, "content": str(message)}
         )
 
-    def ask_gpt(self, functions) -> openai.Stream[openai.ChatCompletionChunk]:
+    def ask_gpt(self, functions) -> openai.Stream:
         base_args = {
             "model": "gpt-3.5-turbo",
             "messages": [generate_system_message(), *self.client.messages],
@@ -192,7 +192,7 @@ class MessageHandler:
             if function_call.name != None:
                 self.function_name = function_call.name
             elif function_call.arguments:
-                self.arguments += function_call["arguments"]
+                self.arguments += function_call.arguments
         elif delta.content != None:
             self.full_message += delta.content
             return delta.content
