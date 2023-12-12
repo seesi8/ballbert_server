@@ -150,6 +150,7 @@ class MessageHandler:
     async def handle_chunk(self, chunk):
         delta = chunk.choices[0].delta
         # check for end
+        print(delta)
         if delta.content == None and delta.function_call == None and delta.tool_calls == None:
             print("end")
             if self.function_name:
