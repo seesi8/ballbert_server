@@ -144,6 +144,8 @@ class MessageHandler:
 
         openai.api_key = config["OPENAI_API_KEY"]
         
+        print(base_args)
+        
         return openai.chat.completions.create(**base_args)
 
     async def handle_chunk(self, chunk):
