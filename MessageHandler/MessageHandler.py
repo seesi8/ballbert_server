@@ -15,6 +15,16 @@ mongo_manager = MongoManager()
 
 config = Config()
 
+def is_bad(s: str):
+    client = openai.OpenAI(api_key= config["OPENAI_API_KEY"])
+
+    response = client.moderations.create(input=s)
+
+    output = response.results[0]
+
+    bad = any(output.categories.dict().values())
+    
+    return bad
 
 def get_functions_list(actions: list[Action]):
     functions = []
@@ -107,6 +117,10 @@ class MessageHandler:
         self.arguments = ""
         self.full_message = ""
         self.client = client
+        
+        if is_bad(gpt_response):
+            gpt_response = "*Inappropriate message*"
+        
         self.gpt_response = gpt_response
         self.user_id = client.uid
 
@@ -200,10 +214,13 @@ class MessageHandler:
             elif function_call.arguments:
                 self.arguments += function_call.arguments
         elif delta.content != None:
-            self.full_message += delta.content
-            return delta.content
+            if not is_bad(self.full_message + delta.content):
+                self.full_message += delta.content
+                return delta.content
+            else:
+                return ""
 
-        return None
+        return ""
 
     async def handle_function(self, message, function_name):
         self.add_function_to_messages(message, function_name)
