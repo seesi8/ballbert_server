@@ -144,7 +144,6 @@ class MessageHandler:
 
         openai.api_key = config["OPENAI_API_KEY"]
         
-        print(base_args)
         
         return openai.chat.completions.create(**base_args)
 
@@ -153,6 +152,9 @@ class MessageHandler:
         # check for end
         if delta == {}:
             if self.function_name:
+                print("function_call")
+                print(self.function_name)
+                print(self.arguments)
                 self.client.messages.append(
                     {
                         "role": "assistant",
@@ -207,7 +209,7 @@ class MessageHandler:
             f"{self.gpt_response}, {function_name}:{message}"
         )
         current_chunk = ""
-        res: openai.Stream[openai.Chat] = self.ask_gpt(functions)
+        res = self.ask_gpt(functions)
         for chunk in res:
             chunk_result = await self.handle_chunk(chunk)
             if isinstance(chunk_result, Generator):
