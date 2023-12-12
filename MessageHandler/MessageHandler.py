@@ -128,7 +128,7 @@ class MessageHandler:
             {"role": "function", "name": function_name, "content": str(message)}
         )
 
-    def ask_gpt(self, functions):
+    def ask_gpt(self, functions) -> openai.Stream[openai.ChatCompletionChunk]:
         base_args = {
             "model": "gpt-3.5-turbo",
             "messages": [generate_system_message(), *self.client.messages],
@@ -147,7 +147,7 @@ class MessageHandler:
         return openai.chat.completions.create(**base_args)
 
     async def handle_chunk(self, chunk):
-        delta = chunk["choices"][0]["delta"]
+        delta = chunk.choices[0].delta
         # check for end
         if delta == {}:
             if self.function_name:
@@ -187,15 +187,15 @@ class MessageHandler:
                 )
                 logging.info(f"FULL MESSAGE = {self.full_message}")
 
-        if "function_call" in delta:
-            function_call = delta["function_call"]
-            if "name" in function_call:
-                self.function_name = function_call["name"]
-            elif "arguments" in function_call:
+        if delta.tool_calls != None:
+            function_call = delta.tool_calls[0].function
+            if function_call.name != None:
+                self.function_name = function_call.name
+            elif function_call.arguments:
                 self.arguments += function_call["arguments"]
-        elif "content" in delta:
-            self.full_message += delta["content"]
-            return delta["content"]
+        elif delta.content != None:
+            self.full_message += delta.content
+            return delta.content
 
         return None
 
@@ -205,7 +205,7 @@ class MessageHandler:
             f"{self.gpt_response}, {function_name}:{message}"
         )
         current_chunk = ""
-        res = self.ask_gpt(functions)
+        res: openai.Stream[openai.Chat] = self.ask_gpt(functions)
         for chunk in res:
             chunk_result = await self.handle_chunk(chunk)
             if isinstance(chunk_result, Generator):

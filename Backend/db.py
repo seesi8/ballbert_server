@@ -48,7 +48,7 @@ class MongoManager:
         except:
             openai.api_key = config["OPENAI_API_KEY"]
             return self.generate_embedding(text)
-        return np.array(response["data"][0]["embedding"])
+        return np.array(response.data[0].embedding)
 
     def add_actions_to_user(self, user_id, actions: list[Action]):
         for action in actions:
