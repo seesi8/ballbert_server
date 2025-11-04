@@ -174,17 +174,18 @@ class Server:
 
         return registrar
 
-    async def websocket_server(self, websocket, path: str):
+    async def websocket_server(self, websocket, path=None):
         print("hi")
         try:
-            uid = websocket.request_headers.get("UID" )
-            user_agent = websocket.request_headers.get("User-Agent", "User")
+            uid = websocket.request.headers.get("UID" )
+            user_agent = websocket.request.headers.get("User-Agent", "User")
             
             if (user_agent == "Device-Setup") and uid:
                 mongo_manager.add_user(uid)
                 return
             
-            headers:dict = websocket.request_headers
+            headers:dict = websocket.request.headers
+            print(uid)
             if not uid:
                 async for message in websocket:
                     auth_message = message
@@ -224,13 +225,11 @@ class Server:
 
 
 
-    def serve(self):
+    async def serve(self):
         print("startyed")
         if platform.system() == "Linux" and os.path.exists("./Data/fullchain.pem"):
-            
-            start_server = websockets.serve(self.websocket_server, "0.0.0.0", 8765, ssl=ssl_context)
+            async with websockets.serve(self.websocket_server, "0.0.0.0", 8765, ssl_context=ssl_context):
+                await asyncio.Future()            
         else:
-            start_server = websockets.serve(self.websocket_server, "0.0.0.0", 8765)
-            
-        asyncio.get_event_loop().run_until_complete(start_server)
-        asyncio.get_event_loop().run_forever()
+            async with websockets.serve(self.websocket_server, "0.0.0.0", 8765):
+                await asyncio.Future()            

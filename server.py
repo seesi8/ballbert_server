@@ -13,6 +13,7 @@ from Config import Config
 from Backend.skill_manager import check_if_skill_is_alright, ready_temp_dir, clone_skill, remove_skill, get_skill_requirements, get_name
 from Backend.sentament import get_sentament
 import logging
+import asyncio
 
 config = Config()
 
@@ -309,4 +310,4 @@ async def convert_generator_to_setance_generator(generator: str):
             buffer += chunk
 
 if __name__ == "__main__":
-    app.serve()
+    asyncio.run(app.serve())
