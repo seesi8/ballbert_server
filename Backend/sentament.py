@@ -6,7 +6,7 @@ config = Config()
 
 def get_sentament(message):
     try:
-        API_URL = "https://api-inference.huggingface.co/models/SamLowe/roberta-base-go_emotions"
+        API_URL = "https://router.huggingface.co/hf-inference/models/SamLowe/roberta-base-go_emotions"
         headers = {"Authorization": f"Bearer {config['HUGGINGFACE_API_KEY']}"}
 
         def query(payload):
@@ -18,6 +18,8 @@ def get_sentament(message):
                 "inputs": message,
             }
         )
+        
+        print(output)
 
         return output[0][0]["label"]
     except:

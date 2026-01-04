@@ -151,7 +151,7 @@ async def handle_audio(client: Client_Assistant, audio_data, sample_rate, sample
 
     decoded_compressed_data = base64.b64decode(audio_data)
     decompressed_frame_data = zlib.decompress(decoded_compressed_data)
-    await client.send_message("done_with_decrompression")
+    # await client.send_message("done_with_decrompression")
 
     audio = sr.AudioData(
         frame_data=decompressed_frame_data,
@@ -164,7 +164,7 @@ async def handle_audio(client: Client_Assistant, audio_data, sample_rate, sample
             audio, "./Data/creds.json")
         logging.info(f"RECOGNISED {transcript}")
     except Exception as e:
-        print(e)
+        print("167", e)
         transcript = "FROM THE SERVER: There was an error transcribing"
 
     await client.send_message("transcription", transcript=transcript)
@@ -216,6 +216,7 @@ async def handle_generator_to_audio(client, gen):
 
         await client.send_message("sentament", sentament=sentament)
         await client.send_message("audio", audio=base64_compressed_audio_data)
+    await client.send_message("sentament", sentament="neutral")
     await client.send_message("audio", audio="stop!")
 
 
